@@ -1,0 +1,12 @@
+data: data.tsv # foo.tsv
+labels:
+  x-axis: parameter value for sampling principal quantum numbers (m)
+  y-axis: location expectation value
+  title: >-
+    "Electron position in the one-dimensional potential well (width = 5.0) expectation value depending on the principal quantum number parameter"
+  subtitle: >-
+    paste(Ψ['total'],"(x) = ", sqrt(0.2) * Ψ['n=m'], "(x) + ", sqrt(0.3) * Ψ['n=(m + 2) mod 3'], "(x) + ", sqrt(0.5) * Ψ['n=(m + 4) mod 5'], "(x)")
+# paste(Ψ['total']," = ", sqrt(0.2) * Ψ, "(x, n) + ", sqrt(0.3) * Ψ, "(x, (n + 2) mod 3) + ", sqrt(0.5) * Ψ, "(x, (n + 4) mod 5)")
+disable-legend: true
+index-column: 'n'
+smooth: false

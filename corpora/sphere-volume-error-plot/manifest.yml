@@ -1,0 +1,10 @@
+data: data.tsv # foo.tsv
+labels:
+  x-axis: precision (number of elementary fragments per axis)
+  y-axis: absolute error
+  title: >-
+    "Absolute error of approximate computation of a sphere volume depending on required precision"
+  subtitle: ''
+disable-legend: false
+index-column: number.of.elementary.fragments.per.axis
+smooth: true

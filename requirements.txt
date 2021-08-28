@@ -1,0 +1,6 @@
+yaml
+hrbrthemes
+tidyverse
+ggplot2
+stringr
+reshape2

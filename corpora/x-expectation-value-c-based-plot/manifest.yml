@@ -1,0 +1,11 @@
+data: data.tsv # foo.tsv
+labels:
+  x-axis: wavefunction weight parameter (c)
+  y-axis: location expectation value
+  title: >-
+    "Electron position in the one-dimensional potential well (width = 5.0) expectation value depending on the value of base wavefunction weights"
+  subtitle: >-
+    paste(Ψ['total'],"(x) = ", sqrt(c) * Ψ['n=1'](x) + sqrt(0.5 * (1 - c)) * Ψ['n=2'](x) + sqrt(0.5 * (1 - c)) * Ψ['n=3'](x))
+disable-legend: true
+index-column: c
+smooth: true
