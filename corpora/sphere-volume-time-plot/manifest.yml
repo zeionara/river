@@ -9,3 +9,14 @@ disable-legend: false
 index-column: number.of.elementary.fragments.per.axis
 smooth: true
 show-points: true # optional
+column-groups:
+  concurrency.2..10.workers:
+    - concurrency.2.workers
+    - concurrency.3.workers
+    - concurrency.4.workers
+    - concurrency.5.workers
+    - concurrency.6.workers
+    - concurrency.7.workers
+    - concurrency.8.workers
+    - concurrency.9.workers
+    - concurrency.10.workers
