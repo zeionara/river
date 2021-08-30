@@ -8,3 +8,4 @@ labels:
 disable-legend: false
 index-column: number.of.elementary.fragments.per.axis
 smooth: true
+show-points: true # optional

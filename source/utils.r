@@ -2,6 +2,14 @@ create_folder_if_doesnt_exist <- function(path) {
     dir.create(file.path(getwd(), path), showWarnings = FALSE, recursive = TRUE)
 }
 
+get_property_value <- function(container, property_name, default = NULL) {
+    value <- container[property_name][[1]]
+    if (is.null(value)) {
+        return(default)
+    }
+    return(value)
+}
+
 visualize_corpus_using_line_plot <- function(path, images_path) {
     library(yaml)
     library(stringr)
@@ -37,7 +45,9 @@ visualize_corpus_using_line_plot <- function(path, images_path) {
     # header <- 
     # print(header)
 
-    ggplot(melted, aes(x = id, y = value, col = variable)) +
+    # print(is.null(manifest['show-points'][[1]]))
+
+    plot <- ggplot(melted, aes(x = id, y = value, col = variable)) +
     # ggplot(data, aes(x = c)) +
         (
             if(manifest['smooth'][[1]])
@@ -67,8 +77,12 @@ visualize_corpus_using_line_plot <- function(path, images_path) {
             plot.title = element_text(size = 14, colour = "black", vjust = -1, hjust=1)
         ) +
         guides(color = guide_legend(override.aes = list(fill = NA)),
-         linetype = guide_legend(override.aes = list(fill = NA))) +
+        linetype = guide_legend(override.aes = list(fill = NA))) +
         theme(legend.key = element_rect(fill = "white"))
+
+    if (get_property_value(manifest, 'show-points', FALSE)) {
+        plot + geom_point()
+    }
 
     create_folder_if_doesnt_exist(images_path)
     ggsave(image_path, height = 7 , width = 14)
