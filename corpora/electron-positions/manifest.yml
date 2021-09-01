@@ -1,0 +1,19 @@
+kind: histogram # line
+data: data.tsv # foo.tsv
+labels:
+  x-axis: electron position
+  y-axis: fraction of measurements
+  title: >-
+    "Number of measurements of an electron position inside one-dimensional potential well with width = 5"
+  subtitle: ''
+disable-legend: false
+index-column: id
+legend:
+  title: Electron properties
+min: 0
+max: 5
+bin-size: .2
+# column-groups:
+#   measurement:
+#     - n.1
+#     - n.2

@@ -37,6 +37,7 @@ sudo apt-get update && sudo apt-get install libcairo2-dev -y # required for inst
 
 ## Examples
 
+![electron-positions](images/electron-positions.jpeg)
 ![x-expectation-value-c-based-plot](images/x-expectation-value-c-based-plot.jpeg)
 ![sphere-volume-time-plot](images/sphere-volume-time-plot.jpeg)
 ![sphere-volume-error-plot](images/sphere-volume-error-plot.jpeg)

@@ -4,7 +4,7 @@ create_folder_if_doesnt_exist <- function(path) {
 
 get_property_value <- function(container, property_name, default = NULL) {
     value <- container[property_name][[1]]
-    if (is.null(value)) {
+    if (is.null(value) || is.na(value)) {
         return(default)
     }
     return(value)
@@ -147,8 +147,19 @@ visualize_corpus_using_line_plot <- function(path, images_path) {
             plot + geom_point()
         }
     } else if(plot_kind=="histogram") {
+        min <- get_property_value(manifest, "min")
+        max <- get_property_value(manifest, "max")
+        bin_size <- get_property_value(manifest, "bin-size")
+
         plot <- ggplot(melted, aes(x = value, col = variable, fill = variable)) +
-            geom_histogram(breaks=seq(0, 5, by = 0.2), position="dodge", show.legend=!manifest['disable-legend'][[1]]) +
+            (
+                if(!is.null(min) && !is.null(max) && !is.null(bin_size))
+                geom_histogram(aes(y = stat(count / sum(count))), breaks = seq(min, max, by = bin_size), position="dodge", show.legend=!manifest['disable-legend'][[1]])
+                else if(!is.null(bin_size))
+                geom_histogram(binwidth = bin_size, position="dodge", show.legend=!manifest['disable-legend'][[1]])
+                else
+                geom_histogram(position="dodge", show.legend=!manifest['disable-legend'][[1]])
+            ) +
             # geom_density(alpha=.7, show.legend=FALSE) +
             xlab(manifest['labels'][[1]]['x-axis']) +
             ylab(manifest['labels'][[1]]['y-axis']) +
@@ -189,7 +200,6 @@ visualize_corpus_using_line_plot <- function(path, images_path) {
             # plot + scale_fill_discrete(name = "New Legend Title", fill = FALSE)
             custom_legend_title = get_property_value(custom_legend_properties, 'title')
             if (!is.null(custom_legend_title)) {
-                print(custom_legend_title)
                 plot + guides(fill = guide_legend(title=custom_legend_title)) + guides(col = "none")
             }
         }
