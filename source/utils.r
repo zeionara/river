@@ -86,15 +86,19 @@ visualize_corpus_using_line_plot <- function(path, images_path) {
     # Generate data path and read the corpus contents
 
     data_path <- paste(path, manifest['data'], sep = "/")
-    data <- read.table(file = data_path, sep = '\t', header = TRUE)
+    data <- read.table(file = data_path, sep = '\t', header = TRUE, check.names = FALSE)
     # group_columns(data, manifest)
     
     # print(head(data))
     # print(manifest['index-column'][[1]])
+
+    # colnames(data) <- c("id", "n = 1", "n = 2")
     
     melted <- melt(data, id=manifest['index-column'][[1]])
     names(melted)[1] <- 'id'
     melted <- group_columns(melted, manifest)
+
+    plot_kind <- manifest['kind'][[1]]
 
     # print(head(melted))
 
@@ -105,41 +109,90 @@ visualize_corpus_using_line_plot <- function(path, images_path) {
 
     # print(is.null(manifest['show-points'][[1]]))
 
-    plot <- ggplot(melted, aes(x = id, y = value, col = variable)) +
-    # ggplot(data, aes(x = c)) +
-        (
-            if(manifest['smooth'][[1]])
-            geom_smooth(size=1, alpha=0.4, linetype=1, show.legend=!manifest['disable-legend'][[1]], level=0.98)
-            else
-            geom_line(size=1, alpha=0.9, linetype=1, show.legend=!manifest['disable-legend'][[1]])
-        ) +
-        # geom_line(size=1, alpha=0.9, linetype=1, show.legend=!manifest['disable-legend'][[1]]) +
-        # geom_smooth(size=1, alpha=0.9, linetype=1, show.legend=!manifest['disable-legend'][[1]], method="loess", level=0.5) +
-        # geom_smooth(aes(y = x), color="#e52165", size=1, alpha=0.9, linetype=1) +
-        xlab(manifest['labels'][[1]]['x-axis']) +
-        ylab(manifest['labels'][[1]]['y-axis']) +
-        ggtitle(
-            # eval(parse(text="expression(atop(bold('ok'),atop('ok')))"))
-            eval(parse(text=paste('expression(
-                atop(
-                    bold(
-                        ', manifest['labels'][[1]]['title'], '
-                    ),
-                atop(
-                    ', manifest['labels'][[1]]['subtitle'], ', ""
+    if (plot_kind=='line') {
+        plot <- ggplot(melted, aes(x = id, y = value, col = variable)) +
+        # ggplot(data, aes(x = c)) +
+            (
+                if(manifest['smooth'][[1]])
+                geom_smooth(size=1, alpha=0.4, linetype=1, show.legend=!manifest['disable-legend'][[1]], level=0.98)
+                else
+                geom_line(size=1, alpha=0.9, linetype=1, show.legend=!manifest['disable-legend'][[1]])
+            ) +
+            # geom_line(size=1, alpha=0.9, linetype=1, show.legend=!manifest['disable-legend'][[1]]) +
+            # geom_smooth(size=1, alpha=0.9, linetype=1, show.legend=!manifest['disable-legend'][[1]], method="loess", level=0.5) +
+            # geom_smooth(aes(y = x), color="#e52165", size=1, alpha=0.9, linetype=1) +
+            xlab(manifest['labels'][[1]]['x-axis']) +
+            ylab(manifest['labels'][[1]]['y-axis']) +
+            ggtitle(
+                # eval(parse(text="expression(atop(bold('ok'),atop('ok')))"))
+                eval(parse(text=paste('expression(
+                    atop(
+                        bold(
+                            ', manifest['labels'][[1]]['title'], '
+                        ),
+                    atop(
+                        ', manifest['labels'][[1]]['subtitle'], ', ""
+                        )
                     )
-                )
-            )', sep='')))
-        ) + theme(
-            # axis.text.x = element_text(angle=-45, hjust=0, vjust=1),
-            plot.title = element_text(size = 14, colour = "black", vjust = -1, hjust=1)
-        ) +
-        guides(color = guide_legend(override.aes = list(fill = NA)),
-        linetype = guide_legend(override.aes = list(fill = NA))) +
-        theme(legend.key = element_rect(fill = "white"))
+                )', sep='')))
+            ) + theme(
+                # axis.text.x = element_text(angle=-45, hjust=0, vjust=1),
+                plot.title = element_text(size = 14, colour = "black", vjust = -1, hjust=0.5)
+            ) +
+            guides(color = guide_legend(override.aes = list(fill = NA)),
+            linetype = guide_legend(override.aes = list(fill = NA))) +
+            theme(legend.key = element_rect(fill = "white"))
 
-    if (get_property_value(manifest, 'show-points', FALSE)) {
-        plot + geom_point()
+        if (get_property_value(manifest, 'show-points', FALSE)) {
+            plot + geom_point()
+        }
+    } else if(plot_kind=="histogram") {
+        plot <- ggplot(melted, aes(x = value, col = variable, fill = variable)) +
+            geom_histogram(breaks=seq(0, 5, by = 0.2), position="dodge", show.legend=!manifest['disable-legend'][[1]]) +
+            # geom_density(alpha=.7, show.legend=FALSE) +
+            xlab(manifest['labels'][[1]]['x-axis']) +
+            ylab(manifest['labels'][[1]]['y-axis']) +
+            ggtitle(
+                # eval(parse(text="expression(atop(bold('ok'),atop('ok')))"))
+                eval(parse(text=paste('expression(
+                    atop(
+                        bold(
+                            ', manifest['labels'][[1]]['title'], '
+                        ),
+                        atop(
+                            ', manifest['labels'][[1]]['subtitle'], '
+                        )
+                    )
+                )', sep='')))
+            ) + theme(
+                # axis.text.x = element_text(angle=-45, hjust=0, vjust=1),
+                plot.title = element_text(size = 14, colour = "black", vjust = -1, hjust=0.5)
+            )
+            # scale_colour_discrete("Continents")
+             # +
+            # guides(
+            #         color = guide_legend(
+            #             override.aes = list(fill = NA)
+            #         ),
+            #         linetype = guide_legend(
+            #             override.aes = list(fill = NA)
+            #         )
+            #     ) +
+            # theme(
+            #     legend.key = element_rect(fill = "white")
+            # ) +
+            # guides(fill="none") + # delete entries from legend which correspond to the bars fill color
+            # scale_fill_discrete(name="Experimental\nCondition")
+        
+        custom_legend_properties = get_property_value(manifest, 'legend')
+        if (!is.null(custom_legend_properties)) {
+            # plot + scale_fill_discrete(name = "New Legend Title", fill = FALSE)
+            custom_legend_title = get_property_value(custom_legend_properties, 'title')
+            if (!is.null(custom_legend_title)) {
+                print(custom_legend_title)
+                plot + guides(fill = guide_legend(title=custom_legend_title)) + guides(col = "none")
+            }
+        }
     }
 
     create_folder_if_doesnt_exist(images_path)
