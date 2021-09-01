@@ -32,7 +32,7 @@ sudo apt-get update && sudo apt-get install libcairo2-dev -y # required for inst
 ```
 3. Installing R dependencies
 ```sh
-./setup.sh # No output means that all required packages are already installed
+./setup.sh # No output or messages saying that some packages were skipped mean that all required libraries are already installed
 ```
 
 ## Examples
