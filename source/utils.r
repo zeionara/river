@@ -35,6 +35,10 @@ get_property_value_as_reversed_string_map <- function(container, property_name, 
     return(result)
 }
 
+is_there_column <- function(data, column_name){
+    return(any(names(data) == column_name))
+}
+
 group_columns <- function(data, manifest){
     column_groups = get_property_value_as_reversed_string_map(manifest, 'column-groups')
     if(is.null(column_groups)){
@@ -68,7 +72,6 @@ group_columns <- function(data, manifest){
 visualize_corpus_using_line_plot <- function(path, images_path) {
     library(yaml)
     library(stringr)
-    library(ggplot2)
     library(hrbrthemes)
     library(reshape2)
     library(hashmap)
@@ -94,7 +97,15 @@ visualize_corpus_using_line_plot <- function(path, images_path) {
 
     # colnames(data) <- c("id", "n = 1", "n = 2")
     
-    melted <- melt(data, id=manifest['index-column'][[1]])
+    index_column_name <- manifest['index-column'][[1]]
+
+    if (!is_there_column(data, index_column_name)) {
+        print("Oops, no index column in the dataset! Initializing it with default values which reflect the index of row")
+        # print()
+        data[index_column_name] <- 1:nrow(data)
+        # print(head(data))
+    }
+    melted <- melt(data, id=index_column_name)
     names(melted)[1] <- 'id'
     melted <- group_columns(melted, manifest)
 
@@ -108,8 +119,12 @@ visualize_corpus_using_line_plot <- function(path, images_path) {
     # print(header)
 
     # print(is.null(manifest['show-points'][[1]]))
+    create_folder_if_doesnt_exist(images_path)
 
     if (plot_kind=='line') {
+        print("foo")
+        library(ggplot2)
+
         plot <- ggplot(melted, aes(x = id, y = value, col = variable)) +
         # ggplot(data, aes(x = c)) +
             (
@@ -146,7 +161,12 @@ visualize_corpus_using_line_plot <- function(path, images_path) {
         if (get_property_value(manifest, 'show-points', FALSE)) {
             plot + geom_point()
         }
+
+        ggsave(image_path, height = 7 , width = 14)
     } else if(plot_kind=="histogram") {
+        print("bar")
+        library(ggplot2)
+
         min <- get_property_value(manifest, "min")
         max <- get_property_value(manifest, "max")
         bin_size <- get_property_value(manifest, "bin-size")
@@ -203,10 +223,84 @@ visualize_corpus_using_line_plot <- function(path, images_path) {
                 plot + guides(fill = guide_legend(title=custom_legend_title)) + guides(col = "none")
             }
         }
-    }
 
-    create_folder_if_doesnt_exist(images_path)
-    ggsave(image_path, height = 7 , width = 14)
+        ggsave(image_path, height = 7 , width = 14)
+    } else if(plot_kind=="3d-histogram"){
+        # print("baz")
+        library(plotly)
+        # print("qux")
+
+        print('Rendering 3d histogram')
+
+        # print(x_axis_title)
+        bins <- get_property_value(manifest, 'bins')
+
+        x_bins <- get_property_value(bins, 'x')
+
+        x_min <- get_property_value(x_bins, 'min')
+        x_max <- get_property_value(x_bins, 'max')
+        bin_size <- get_property_value(x_bins, 'bin-size')
+
+        x_bin_left_bound <- seq(x_min, x_max - bin_size, by=bin_size)
+        x_bin_right_bound <- seq(x_min + bin_size, x_max, by=bin_size)
+
+        x_bin_bounds <- data.frame(x_bin_left_bound, x_bin_right_bound)
+
+        # print(head(x_bin_bounds))
+        # print(paste("total", nrow(x_bin_bounds), "bins"))
+
+        y_bins <- get_property_value(bins, 'y')
+
+        y_min <- get_property_value(y_bins, 'min')
+        y_max <- get_property_value(y_bins, 'max')
+        bin_size <- get_property_value(y_bins, 'bin-size')
+
+        y_bin_left_bound <- seq(y_min, y_max - bin_size, by=bin_size)
+        y_bin_right_bound <- seq(y_min + bin_size, y_max, by=bin_size)
+
+        y_bin_bounds <- data.frame(y_bin_left_bound, y_bin_right_bound)
+
+        # print(head(y_bin_bounds))
+        # print(paste("total", nrow(y_bin_bounds), "bins"))
+
+        grid_bins = merge(x_bin_bounds, y_bin_bounds)
+
+        print(head(grid_bins))
+        print(paste("total", nrow(grid_bins), "bins"))
+
+        print(head(data))
+        # dat <- data
+
+        bin_counts = c()
+        for (i in 1:nrow(grid_bins)) {
+            x_bin_left_boundary <- grid_bins[i, "x_bin_left_bound"]
+            x_bin_right_boundary  <- grid_bins[i, "x_bin_right_bound"]
+            
+            y_bin_left_boundary <- grid_bins[i, "y_bin_left_bound"]
+            y_bin_right_boundary  <- grid_bins[i, "y_bin_right_bound"]
+
+            print(paste(x_bin_left_boundary, x_bin_right_boundary, y_bin_left_boundary, y_bin_right_boundary))
+            print(nrow(data[data$x > x_bin_left_boundary && data$y > y_bin_left_boundary && data$x < x_bin_right_boundary,]))
+            # print(nrow(data[data$x > x_bin_left_boundary, ]))
+            # print(i)
+            # bin_counts[i] = nrow(data[data$x > x_bin_left_boundary && data$x <= x_bin_right_boundary && data$y > y_bin_left_boundary && data$y <= y_bin_right_boundary, ])
+        }
+
+        print(bin_counts)
+
+        fig <- plot_ly(data, x = ~x, y = ~y, z = ~id, width = 1024, height = 720)
+        fig <- fig %>% add_markers()
+        fig <- fig %>% layout(
+            scene = list(
+                xaxis = list(title = manifest['labels'][[1]]['x-axis'][[1]]),
+                yaxis = list(title = manifest['labels'][[1]]['y-axis'][[1]]),
+                zaxis = list(title = manifest['labels'][[1]]['z-axis'][[1]])
+            )
+            # autosize = F, 
+        )
+        
+        # orca(fig, image_path, error=F)
+    }
 
     return(image_path)
 }
