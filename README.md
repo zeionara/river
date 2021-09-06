@@ -29,6 +29,7 @@ sudo add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_
 2. Installing system-level dependencies
 ```sh
 sudo apt-get update && sudo apt-get install libcairo2-dev -y # required for installing hrbrthemes on ubuntu, for other OSes there must be analogous packages
+conda install -c plotly plotly-orca # required for exporting images generated via plotly (currently this impacts 3d histograms)
 ```
 3. Installing R dependencies
 ```sh
@@ -37,6 +38,7 @@ sudo apt-get update && sudo apt-get install libcairo2-dev -y # required for inst
 
 ## Examples
 
+![2d-electron-positions](images/2d-electron-positions.jpeg)
 ![electron-positions](images/electron-positions.jpeg)
 ![x-expectation-value-c-based-plot](images/x-expectation-value-c-based-plot.jpeg)
 ![sphere-volume-time-plot](images/sphere-volume-time-plot.jpeg)

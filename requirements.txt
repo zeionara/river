@@ -4,3 +4,5 @@ tidyverse
 ggplot2
 stringr
 reshape2
+plotly
+processx
