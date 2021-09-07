@@ -14,6 +14,20 @@ The command accepts two arguments - the first points to the folder with corpus d
 
 For the command above after the script execution a file with name `images/experiment.jpeg` will be generated.
 
+At the same time the project is very easy to use from the R console as well which is a preferable option when working with interactive plotly diagrams. As you can see in the example below, a corpus can be easily imported and visualized using just one short expression.
+
+```r
+source('source/utils.r')
+'corpora/2d-electron-positions` %>% read %>% render
+```
+
+And if you want to save the generated image on a disk to make it a static asset, it's extremely simple as well
+
+```r
+source('source/utils.r')
+'corpora/2d-electron-positions` %>% read %>% render %>% draw("image.jpeg")
+```
+
 ## Prerequisities
 
 The following instructions, commands and scripts are tested solely on Ubuntu 20.04. The installation must be executed only after setting your working directory to match the folder containing data from this repository.
@@ -38,7 +52,8 @@ conda install -c plotly plotly-orca # required for exporting images generated vi
 
 ## Examples
 
-![2d-electron-positions](images/2d-electron-positions.jpeg)
+![2d-electron-positions](images/2d-electron-positions.png)
+![2d-electron-positions-rotated](images/2d-electron-positions-rotated.png)
 ![electron-positions](images/electron-positions.jpeg)
 ![x-expectation-value-c-based-plot](images/x-expectation-value-c-based-plot.jpeg)
 ![sphere-volume-time-plot](images/sphere-volume-time-plot.jpeg)

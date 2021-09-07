@@ -77,7 +77,7 @@ visualize_as_mesh <- function(corpus) {
 
     print(head(grid_bins))
 
-    fig <- plot_ly(grid_bins, x = ~x_bin_labels, y = ~y_bin_labels, z = ~z, width = 5120, height = 3600, type="mesh3d")
+    fig <- plot_ly(grid_bins, x = ~x_bin_labels, y = ~y_bin_labels, z = ~z, width = 1024, height = 720, type="mesh3d")
     # fig <- fig %>% add_markers()
     fig <- fig %>% layout(
         scene = list(
