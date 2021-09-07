@@ -41,9 +41,9 @@ read_corpus_data <- function(path, manifest) {
     return(list(data = data, index_column_name = index_column_name))
 }
 
-melt_and_group_columns <- function(corpus_data, manifest) {
-    melted <- melt(corpus_data$data, id=corpus_data$index_column_name)
+melt_and_group_columns <- function(corpus) {
+    melted <- melt(corpus$data, id=corpus$index_column_name)
     names(melted)[1] <- 'id'
-    melted <- group_columns(melted, manifest)
+    melted <- group_columns(melted, corpus$manifest)
     return(melted)
 }

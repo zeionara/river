@@ -1,7 +1,9 @@
 library(ggplot2)
 
-visualize_as_line <- function(corpus_data, manifest) {
-    melted <- melt_and_group_columns(corpus_data, manifest)
+visualize_as_line <- function(corpus) {
+    melted <- melt_and_group_columns(corpus)
+    manifest <- corpus$manifest
+
     plot <- ggplot(melted, aes(x = id, y = value, col = variable)) +
     # ggplot(data, aes(x = c)) +
         (
