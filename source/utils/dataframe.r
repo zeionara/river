@@ -47,3 +47,14 @@ melt_and_group_columns <- function(corpus) {
     melted <- group_columns(melted, corpus$manifest)
     return(melted)
 }
+
+get_bin_bounds <- function(bins_specification) {
+    left_boundary <- get_property_value(bins_specification, 'min')
+    right_boundary <- get_property_value(bins_specification, 'max')
+    bin_size <- get_property_value(bins_specification, 'bin-size')
+
+    left_interval_boundaries <- seq(left_boundary, right_boundary - bin_size, by=bin_size)
+    right_interval_boundaries <- seq(left_boundary + bin_size, right_boundary, by=bin_size)
+
+    return(data.frame(left_interval_boundaries, right_interval_boundaries))
+}
