@@ -13,7 +13,19 @@ make_bin_bounds <- function(bins, axis_name) {
     return(bin_bounds)
 }
 
-visualize_as_3d_histogram <- function(corpus) {
+sample_auxiliary_row <- function(x_bound, y_bound, z) {
+    return(
+        list(
+            x_bin_left_bound=0.0, # Left boundaries are not used on the rendering step - they are used only for storing area boundaries in the main coprus fragment
+            x_bin_right_bound=x_bound,
+            y_bin_left_bound=0.0,
+            y_bin_right_bound=y_bound,
+            z=z
+        )
+    )
+}
+
+visualize_as_3d_histogram <- function(corpus, epsilon = 1e-14) {
     data <- corpus$data
     manifest <- corpus$manifest
 
@@ -21,10 +33,6 @@ visualize_as_3d_histogram <- function(corpus) {
     grid_bins = merge(make_bin_bounds(bins, 'x'), make_bin_bounds(bins, 'y'))
 
     bin_counts = c()
-    x_bin_labels = c()
-    y_bin_labels = c()
-
-    epsilon <- 1e-14
 
     additional_points <- data.frame(
         x_bin_left_bound=double(),
@@ -41,7 +49,7 @@ visualize_as_3d_histogram <- function(corpus) {
         y_bin_left_boundary <- grid_bins[i, "y_bin_left_bound"]
         y_bin_right_boundary  <- grid_bins[i, "y_bin_right_bound"]
 
-        bin_counts[i] = nrow(
+        counts = nrow(
             data[
                 which(
                     data$x > x_bin_left_boundary &
@@ -52,56 +60,24 @@ visualize_as_3d_histogram <- function(corpus) {
             ]
         )
         
-        x_bin_labels[i] = paste("(", x_bin_left_boundary, ";", x_bin_right_boundary, "]", sep="")
-        y_bin_labels[i] = paste("(", y_bin_left_boundary, ";", y_bin_right_boundary, "]", sep="")
-
-        new_points <- list(
-            x_bin_left_bound=0.0,
-            x_bin_right_bound=x_bin_left_boundary + epsilon,
-            y_bin_left_bound=0.0,
-            y_bin_right_bound=y_bin_left_boundary + epsilon,
-            z=bin_counts[i],
-            x_bin_labels="-",
-            y_bin_labels="-"
-        )
-        additional_points = rbind(additional_points, new_points)
-
-        new_points <- list(
-            x_bin_left_bound=0.0,
-            x_bin_right_bound=x_bin_left_boundary + epsilon,
-            y_bin_left_bound=0.0,
-            y_bin_right_bound=y_bin_right_boundary,
-            z=bin_counts[i],
-            x_bin_labels="-",
-            y_bin_labels="-"
-        )
-        additional_points = rbind(additional_points, new_points)
-
-        new_points <- list(
-            x_bin_left_bound=0.0,
-            x_bin_right_bound=x_bin_right_boundary,
-            y_bin_left_bound=0.0,
-            y_bin_right_bound=y_bin_left_boundary + epsilon,
-            z=bin_counts[i],
-            x_bin_labels="-",
-            y_bin_labels="-"
+        additional_points = rbind(
+            additional_points,
+            sample_auxiliary_row(x_bin_left_boundary + epsilon, y_bin_left_boundary + epsilon, counts),
+            sample_auxiliary_row(x_bin_left_boundary + epsilon, y_bin_right_boundary, counts),
+            sample_auxiliary_row(x_bin_right_boundary, y_bin_left_boundary + epsilon, counts)
         )
 
-        additional_points = rbind(additional_points, new_points)
+        bin_counts[i] <- counts
     }
 
-    # print(warnings())
-    # print(head(additional_points))
-
-
-
     grid_bins$z <- bin_counts
-    grid_bins$x_bin_labels <- x_bin_labels
-    grid_bins$y_bin_labels <- y_bin_labels
-
     grid_bins <- rbind(grid_bins, additional_points)
 
-    grid_bins %>% plot_ly(x = ~x_bin_right_bound, y = ~y_bin_right_bound, z = ~z, width = 1024, height = 720, type="mesh3d") %>% layout(
+    color <- as.vector(col2rgb(get_property_value(manifest, 'color', "#e75874")))
+
+    grid_bins %>% plot_ly(x = ~x_bin_right_bound, y = ~y_bin_right_bound, z = ~z, width = 1920, height = 1080, type="mesh3d",
+         intensity=grid_bins$z, colorscale='Viridis'
+    ) %>% layout(
         scene = list(
             xaxis = list(title = manifest['labels'][[1]]['x-axis'][[1]]),
             yaxis = list(title = manifest['labels'][[1]]['y-axis'][[1]]),

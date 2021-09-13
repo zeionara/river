@@ -13,7 +13,7 @@ make_bin_bounds <- function(bins, axis_name) {
     return(bin_bounds)
 }
 
-visualize_as_mesh <- function(corpus) {
+visualize_as_3d_accumulative_mesh <- function(corpus) {
     data <- corpus$data
     manifest <- corpus$manifest
 

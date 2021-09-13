@@ -52,6 +52,7 @@ conda install -c plotly plotly-orca # required for exporting images generated vi
 
 ## Examples
 
+![3d-histogram](images/3d-histogram.jpg)
 ![2d-electron-positions](images/2d-electron-positions.png)
 ![2d-electron-positions-rotated](images/2d-electron-positions-rotated.png)
 ![electron-positions](images/electron-positions.jpeg)
