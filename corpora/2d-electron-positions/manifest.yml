@@ -1,4 +1,4 @@
-kind: mesh # line
+kind: 3d-histogram # mesh # line
 data: data.tsv # foo.tsv
 labels:
   x-axis: first electron coordinate
